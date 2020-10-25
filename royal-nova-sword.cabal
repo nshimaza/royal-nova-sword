@@ -1,0 +1,136 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.33.0.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: 79b61646c9474b62475333d2cac0f1d44075015409420fad17940c6351421561
+
+name:           royal-nova-sword
+version:        0.1.0.0
+description:    Please see the README on GitHub at <https://github.com/githubuser/royal-nova-sword#readme>
+homepage:       https://github.com/githubuser/royal-nova-sword#readme
+bug-reports:    https://github.com/githubuser/royal-nova-sword/issues
+author:         Author name here
+maintainer:     example@example.com
+copyright:      2020 Author name here
+license:        BSD3
+license-file:   LICENSE
+build-type:     Simple
+extra-source-files:
+    README.md
+    ChangeLog.md
+
+source-repository head
+  type: git
+  location: https://github.com/githubuser/royal-nova-sword
+
+library
+  exposed-modules:
+      Network.RoyalNovaSword
+      Network.RoyalNovaSword.Types
+  other-modules:
+      Paths_royal_nova_sword
+  hs-source-dirs:
+      src
+  build-depends:
+      aeson
+    , aeson-casing
+    , attoparsec
+    , base >=4.7 && <5
+    , bytestring
+    , connection
+    , http-client
+    , http-conduit
+    , http-types
+    , optparse-applicative
+    , text
+    , unordered-containers
+    , vector
+  default-language: Haskell2010
+
+executable rns-learn
+  main-is: Main.hs
+  other-modules:
+      Paths_royal_nova_sword
+  hs-source-dirs:
+      app/rns-learn
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      aeson
+    , attoparsec
+    , base >=4.7 && <5
+    , bytestring
+    , http-conduit
+    , optparse-applicative
+    , royal-nova-sword
+    , text
+    , unordered-containers
+    , vector
+  default-language: Haskell2010
+
+executable rns-lock
+  main-is: Main.hs
+  other-modules:
+      Paths_royal_nova_sword
+  hs-source-dirs:
+      app/rns-lock
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      aeson
+    , attoparsec
+    , base >=4.7 && <5
+    , bytestring
+    , http-conduit
+    , optparse-applicative
+    , royal-nova-sword
+    , text
+    , unordered-containers
+    , vector
+  default-language: Haskell2010
+
+executable rns-reset
+  main-is: Main.hs
+  other-modules:
+      Paths_royal_nova_sword
+  hs-source-dirs:
+      app/rns-reset
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      aeson
+    , attoparsec
+    , base >=4.7 && <5
+    , bytestring
+    , http-conduit
+    , optparse-applicative
+    , royal-nova-sword
+    , text
+    , unordered-containers
+    , vector
+  default-language: Haskell2010
+
+test-suite royal-nova-sword-test
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  other-modules:
+      Network.RoyalNovaSword.TypesSpec
+      Network.RoyalNovaSwordSpec
+      Paths_royal_nova_sword
+  hs-source-dirs:
+      test
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-tool-depends:
+      hspec-discover:hspec-discover
+  build-depends:
+      aeson
+    , attoparsec
+    , base >=4.7 && <5
+    , bytestring
+    , hspec
+    , http-conduit
+    , optparse-applicative
+    , royal-nova-sword
+    , text
+    , unordered-containers
+    , vector
+  default-language: Haskell2010

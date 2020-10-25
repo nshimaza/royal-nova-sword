@@ -1,0 +1,84 @@
+name:                royal-nova-sword
+version:             0.1.0.0
+github:              "githubuser/royal-nova-sword"
+license:             BSD3
+author:              "Author name here"
+maintainer:          "example@example.com"
+copyright:           "2020 Author name here"
+
+extra-source-files:
+- README.md
+- ChangeLog.md
+
+# Metadata used when publishing your package
+# synopsis:            Short description of your package
+# category:            Web
+
+# To avoid duplicated efforts in documentation and dealing with the
+# complications of embedding Haddock markup inside cabal files, it is
+# common to point users to the README.md file.
+description:         Please see the README on GitHub at <https://github.com/githubuser/royal-nova-sword#readme>
+
+dependencies:
+- base >= 4.7 && < 5
+- aeson
+- attoparsec
+- bytestring
+- http-conduit
+- optparse-applicative
+- text
+- unordered-containers
+- vector
+
+library:
+  source-dirs: src
+  dependencies:
+  - aeson-casing
+  - connection
+  - http-client
+  - http-types
+
+executables:
+  rns-learn:
+    main:                Main.hs
+    source-dirs:         app/rns-learn
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - royal-nova-sword
+
+  rns-lock:
+    main:                Main.hs
+    source-dirs:         app/rns-lock
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - royal-nova-sword
+
+  rns-reset:
+    main:                Main.hs
+    source-dirs:         app/rns-reset
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - royal-nova-sword
+
+tests:
+  royal-nova-sword-test:
+    main:                Spec.hs
+    source-dirs:         test
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    build-tools:
+    - hspec-discover
+    dependencies:
+    - royal-nova-sword
+    - hspec

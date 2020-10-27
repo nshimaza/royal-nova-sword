@@ -11,9 +11,11 @@
 
 module Main where
 
+import           Control.Monad.IO.Class       (liftIO)
 import qualified Data.ByteString              as S (ByteString)
-import qualified Data.ByteString.Lazy         as L (ByteString)
+import qualified Data.ByteString.Lazy         as L (ByteString, readFile)
 import qualified Data.ByteString.Lazy.Char8   as L8 (pack)
+import           Network.HTTP.Media           ((//), (/:))
 import           Network.HTTP.Simple          (Response)
 import           Network.Wai.Handler.Warp     (run)
 import           Options.Applicative          (Parser, ParserInfo, argument,
@@ -44,10 +46,6 @@ argsInfo = info (getArgs <**> helper)
     <> header   "rns-learn - Unlock switch and start learning flow."
     )
 
-orDie :: Show a => L.ByteString -> Either a b -> Handler ()
-orDie err (Left a) = throwError $ err500 { errBody = err <> ": " <> (L8.pack $ show a) }
-orDie _ _          = pure ()
-
 interfaces :: [InterfaceId]
 interfaces =
     [ InterfaceId GigabitEthernet "2/1"
@@ -56,12 +54,32 @@ interfaces =
     , InterfaceId GigabitEthernet "2/4"
     ]
 
-type UserAPI1 = "api" :>
-    (
-         PostNoContent '[PlainText] NoContent
-    :<|> PutNoContent '[PlainText] NoContent
-    :<|> DeleteNoContent '[PlainText] NoContent
-    )
+data HTML = HTML
+
+newtype RawHtml = RawHtml { unRawHtml :: L.ByteString }
+
+instance Accept HTML where
+    contentType _ = "text" // "html" /: ("charset", "utf-8")
+
+instance MimeRender HTML RawHtml where
+    mimeRender _ = unRawHtml
+
+
+type UserAPI1
+    =    Get '[HTML] RawHtml
+    :<|> "api" :>
+            (
+                 PostNoContent '[PlainText] NoContent
+            :<|> PutNoContent '[PlainText] NoContent
+            :<|> DeleteNoContent '[PlainText] NoContent
+            )
+
+orDie :: Show a => L.ByteString -> Either a b -> Handler ()
+orDie err (Left a) = throwError $ err500 { errBody = err <> ": " <> (L8.pack $ show a) }
+orDie _ _          = pure ()
+
+topPage :: Handler RawHtml
+topPage = RawHtml <$> (liftIO $ L.readFile "static/index.html")
 
 learn :: RestConfAccessProfile -> [InterfaceId] -> Handler NoContent
 learn prof ifs = do
@@ -90,7 +108,7 @@ unlock prof ifs = do
     pure NoContent
 
 server1 :: RestConfAccessProfile -> [InterfaceId] -> Server UserAPI1
-server1 prof ifs = learn prof ifs :<|> lock prof ifs :<|> unlock prof ifs
+server1 prof ifs = topPage :<|> (learn prof ifs :<|> lock prof ifs :<|> unlock prof ifs)
 
 userAPI :: Proxy UserAPI1
 userAPI = Proxy

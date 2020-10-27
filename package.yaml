@@ -25,6 +25,7 @@ dependencies:
 - attoparsec
 - bytestring
 - http-conduit
+- http-media
 - optparse-applicative
 - servant-server
 - text

@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: bc534b2a6e9c27e618a9def6dde6309d39c8c9bd7eb59206044475e590c86d97
+-- hash: d97119aa2e64a35e79cc2711e0b72e2d64840ea24a049c2f3216b7f4f2e71d5b
 
 name:           royal-nova-sword
 version:        0.1.0.0
@@ -42,6 +42,7 @@ library
     , connection
     , http-client
     , http-conduit
+    , http-media
     , http-types
     , optparse-applicative
     , servant-server
@@ -63,6 +64,7 @@ executable rns-learn
     , base >=4.7 && <5
     , bytestring
     , http-conduit
+    , http-media
     , optparse-applicative
     , royal-nova-sword
     , servant-server
@@ -84,6 +86,7 @@ executable rns-lock
     , base >=4.7 && <5
     , bytestring
     , http-conduit
+    , http-media
     , optparse-applicative
     , royal-nova-sword
     , servant-server
@@ -105,6 +108,7 @@ executable rns-reset
     , base >=4.7 && <5
     , bytestring
     , http-conduit
+    , http-media
     , optparse-applicative
     , royal-nova-sword
     , servant-server
@@ -126,6 +130,7 @@ executable rns-web
     , base >=4.7 && <5
     , bytestring
     , http-conduit
+    , http-media
     , optparse-applicative
     , royal-nova-sword
     , servant-server
@@ -155,6 +160,7 @@ test-suite royal-nova-sword-test
     , bytestring
     , hspec
     , http-conduit
+    , http-media
     , optparse-applicative
     , royal-nova-sword
     , servant-server

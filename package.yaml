@@ -1,10 +1,10 @@
 name:                royal-nova-sword
 version:             0.1.0.0
 github:              "githubuser/royal-nova-sword"
-license:             BSD3
-author:              "Author name here"
-maintainer:          "example@example.com"
-copyright:           "2020 Author name here"
+license:             OtherLicense
+author:              "Naoto Shimazaki"
+maintainer:          "nshimaza@cisco.com"
+copyright:           "2020 Naoto Shimazaki"
 
 extra-source-files:
 - README.md
@@ -26,6 +26,7 @@ dependencies:
 - bytestring
 - http-conduit
 - optparse-applicative
+- servant-server
 - text
 - unordered-containers
 - vector
@@ -39,6 +40,18 @@ library:
   - http-types
 
 executables:
+  rns-web:
+    main:                Main.hs
+    source-dirs:         app/rns-web
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - royal-nova-sword
+    - wai
+    - warp
+
   rns-learn:
     main:                Main.hs
     source-dirs:         app/rns-learn

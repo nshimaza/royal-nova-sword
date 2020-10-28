@@ -34,33 +34,39 @@ import           Network.RoyalNovaSword.Types
 {-
     Types
 -}
+-- | Access profile for RESTCONF on switch
 data RestConfAccessProfile = RestConfAccessProfile
-    { restConfAccessProfileHost              :: S.ByteString
-    , restConfAccessProfileUsername          :: S.ByteString
-    , restConfAccessProfilePassword          :: S.ByteString
-    , restConfAccessProfileTLSValidateServer :: Bool
+    { restConfAccessProfileHost              :: S.ByteString    -- ^ Target switch host name or IP address
+    , restConfAccessProfileUsername          :: S.ByteString    -- ^ Username for accessing RESTCONF of the switch
+    , restConfAccessProfilePassword          :: S.ByteString    -- ^ Password for accessing RESTCONF of the switch
+    , restConfAccessProfileTLSValidateServer :: Bool            -- ^ False when the switch certificate is self-signed
     }
 
 {-
     Flow to ACL converter
 -}
+-- Convert single flow entry to ace-rule entry of access control list
 flowToAceRule :: Flow -> AceRule
 flowToAceRule (Flow src dst _) = AceRule Permit Ip (Just src) (Just dst) Nothing Nothing
 
+-- | Convert list of flows at single interface to list of ace-rule with auto-generated sequence number
 flowsForOneIfToAclSeqRules :: [Flow] -> [AclSeqRule]
 flowsForOneIfToAclSeqRules = map (\(i, flow) -> AclSeqRule (show i) (flowToAceRule flow)) . zip [1..]
 
+-- | Append deny-all rule at the end of sequenced ace-rule list
 appendDenyAll :: [AclSeqRule] -> [AclSeqRule]
 appendDenyAll rules = rules <> [denyAll]
   where
     denyAll = AclSeqRule (show (1 + length rules)) $ AceRule Deny Ip Nothing Nothing (Just [DummyNull]) (Just [DummyNull])
 
+-- | Filter flows by given 'InterfaceId' and convert it to extended access list configuration
 makeExtAcl :: [Flow] -> InterfaceId -> ExtendedAclConfBody
 makeExtAcl flows ifId = makeBody $ flowsForOneIfToAclSeqRules targets
   where
     targets = filter (\(Flow _ _ (TwoLetterIfId i)) -> i == ifId) flows
     makeBody = ExtendedAclConfBody . ExtendedAclConf (interfaceIdToText ifId) . appendDenyAll
 
+-- | Create list of extended ACL configuration from given list of flows and list of interfaces
 makeExtAcls :: [Flow] -> [InterfaceId] -> [ExtendedAclConfBody]
 makeExtAcls flows ifIds = makeExtAcl flows <$> ifIds
 
@@ -68,6 +74,7 @@ makeExtAcls flows ifIds = makeExtAcl flows <$> ifIds
 {-
     HTTP connection configuration
 -}
+-- | Set up TLS parameters for RESTCONF HTTPS access.
 createManager :: MonadIO m => Bool -> m Manager
 createManager validate = do
     let settings = mkManagerSettings (TLSSettingsSimple (not validate) False False) Nothing
@@ -76,33 +83,43 @@ createManager validate = do
 {-
     RESTCONF paths
 -}
+-- | Most common part of URL path for RESTCONF
 restConfCommonPath :: S.ByteString
 restConfCommonPath = "/restconf/data"
 
+-- | RESTCONF URL path for Cisco IOS XE native configuration
 restConfNativeConfPath :: S.ByteString
 restConfNativeConfPath = restConfCommonPath <> "/Cisco-IOS-XE-native:native"
 
+-- | RESTCONF URL path for IOS XE Flexible NetFlow configuration
 restConfNetFlowConfPath :: S.ByteString
 restConfNetFlowConfPath = restConfNativeConfPath <> "/flow"
 
+-- | RESTCONF path to designate interface for configuration
 restConfInterfaceConfPath :: InterfaceId -> S.ByteString
 restConfInterfaceConfPath ifId = restConfNativeConfPath <> "/interface/" <> interfaceIdToRestConfPath ifId
 
+-- | RESTCONF path to apply NetFlow monitor to specified interface
 restConfInterfaceFlowConfPath :: InterfaceId -> S.ByteString
 restConfInterfaceFlowConfPath ifId = restConfInterfaceConfPath ifId <> "/ip/flow"
 
+-- | RESTCONF path to apply input access control list to specified interface
 restConfInterfaceAclInConfPath :: InterfaceId -> S.ByteString
 restConfInterfaceAclInConfPath ifId = restConfInterfaceConfPath ifId <> "/ip/access-group/in/acl"
 
+-- | RESTCONF path to designate named extended access list
 restConfExtAclConfPath :: Text -> S.ByteString
 restConfExtAclConfPath name = restConfNativeConfPath <> "/ip/access-list/extended=" <> (urlEncode False $ encodeUtf8 name)
 
+-- | RESTCONF path to designate entire access list configuration
 restConfAllAclConfPath :: S.ByteString
 restConfAllAclConfPath = restConfNativeConfPath <> "/ip/access-list"
 
+-- | RESTCONF path to obtain current cache of Flexible NetFlow monitor
 restConfFlowMonitorOprPath :: S.ByteString
 restConfFlowMonitorOprPath = restConfCommonPath <> "/Cisco-IOS-XE-flow-monitor-oper:flow-monitors/flow-monitor=IPFlow"
 
+-- | Common HTTP header for RESTCONF indicating this RESTCONF client only send and receive JSON format of YANG data
 addRestConfJsonHeaders :: Request -> Request
 addRestConfJsonHeaders req
     = addRequestHeader hAccept "application/yang-data+json"
@@ -112,6 +129,7 @@ addRestConfJsonHeaders req
 {-
     NetFlow configuration
 -}
+-- | Delete NetFlow configuration
 deleteNetFlowConf :: MonadIO m => RestConfAccessProfile -> m (Either (Response ()) ())
 deleteNetFlowConf (RestConfAccessProfile host user pass validate) = do
     manager <- createManager validate
@@ -128,6 +146,7 @@ deleteNetFlowConf (RestConfAccessProfile host user pass validate) = do
             then Right ()
             else Left res
 
+-- RESTCONF body JSON to create Flexible NetFlow record and monitor configuration
 netFlowRestConfBody :: L.ByteString
 netFlowRestConfBody =
     "{\
@@ -159,6 +178,7 @@ netFlowRestConfBody =
     \  }\
     \}"
 
+-- | Create Flexible NetFlow custom record and monitor configuration
 setNetFlowConf :: MonadIO m => RestConfAccessProfile -> m (Either (Response ()) ())
 setNetFlowConf (RestConfAccessProfile host user pass validate) = do
     manager <- createManager validate
@@ -177,6 +197,7 @@ setNetFlowConf (RestConfAccessProfile host user pass validate) = do
             then Right ()
             else Left res
 
+-- | Remove NetFlow monitor from given interface
 deleteNetFlowMonOnInterface :: MonadIO m => RestConfAccessProfile -> InterfaceId -> m (Either (Response ()) ())
 deleteNetFlowMonOnInterface (RestConfAccessProfile host user pass validate) ifId = do
     manager <- createManager validate
@@ -193,6 +214,7 @@ deleteNetFlowMonOnInterface (RestConfAccessProfile host user pass validate) ifId
             then Right ()
             else Left res
 
+-- | Remove NetFlow monitor from given interface list
 deleteNetFlowMonOnInterfaces :: MonadIO m => RestConfAccessProfile -> [InterfaceId] -> m (Either (Response ()) ())
 deleteNetFlowMonOnInterfaces accessProfile ifIds = go ifIds
   where
@@ -203,6 +225,7 @@ deleteNetFlowMonOnInterfaces accessProfile ifIds = go ifIds
             Right () -> go rest
             err      -> pure err
 
+-- RESTCONF body JSON to apply Flexible NetFlow monitor to an interface
 netFlowInterfaceRestConfBody :: L.ByteString
 netFlowInterfaceRestConfBody =
     "{\
@@ -216,6 +239,7 @@ netFlowInterfaceRestConfBody =
     \  }\
     \}"
 
+-- | Apply NetFlow monitor to given interface
 setNetFlowMonOnInterface :: MonadIO m => RestConfAccessProfile -> InterfaceId -> m (Either (Response ()) ())
 setNetFlowMonOnInterface (RestConfAccessProfile host user pass validate) ifId = do
     manager <- createManager validate
@@ -234,6 +258,7 @@ setNetFlowMonOnInterface (RestConfAccessProfile host user pass validate) ifId = 
             then Right ()
             else Left res
 
+-- | Apply NetFlow monitor to given interface list
 setNetFlowMonOnInterfaces :: MonadIO m => RestConfAccessProfile -> [InterfaceId] -> m (Either (Response ()) ())
 setNetFlowMonOnInterfaces accessProfile ifIds = go ifIds
   where
@@ -247,6 +272,7 @@ setNetFlowMonOnInterfaces accessProfile ifIds = go ifIds
 {-
     ACL configuration
 -}
+-- | Apply input access list to given interface
 setAclInOnInterface :: MonadIO m => RestConfAccessProfile -> InterfaceId -> m (Either (Response ()) ())
 setAclInOnInterface (RestConfAccessProfile host user pass validate) ifId = do
     manager <- createManager validate
@@ -265,6 +291,7 @@ setAclInOnInterface (RestConfAccessProfile host user pass validate) ifId = do
             then Right ()
             else Left res
 
+-- | Apply input access lists to given interface list
 setAclInOnInterfaces :: MonadIO f => RestConfAccessProfile -> [InterfaceId] -> f (Either (Response ()) ())
 setAclInOnInterfaces accessProfile ifIds = go ifIds
   where
@@ -275,6 +302,7 @@ setAclInOnInterfaces accessProfile ifIds = go ifIds
             Right () -> go rest
             err      -> pure err
 
+-- | Remove input access list from given interface
 deleteAclInOnInterface :: MonadIO m => RestConfAccessProfile -> InterfaceId -> m (Either (Response ()) ())
 deleteAclInOnInterface (RestConfAccessProfile host user pass validate) ifId = do
     manager <- createManager validate
@@ -291,6 +319,7 @@ deleteAclInOnInterface (RestConfAccessProfile host user pass validate) ifId = do
             then Right ()
             else Left res
 
+-- | Remove input access lists from given interface list
 deleteAclInOnInterfaces :: MonadIO f => RestConfAccessProfile -> [InterfaceId] -> f (Either (Response ()) ())
 deleteAclInOnInterfaces accessProfile ifIds = go ifIds
   where
@@ -301,6 +330,7 @@ deleteAclInOnInterfaces accessProfile ifIds = go ifIds
             Right () -> go rest
             err      -> pure err
 
+-- | Create an extended access list on target switch
 setExtAcl :: MonadIO m => RestConfAccessProfile -> ExtendedAclConfBody -> m (Either (Response ()) ())
 setExtAcl (RestConfAccessProfile host user pass validate) acl@(ExtendedAclConfBody (ExtendedAclConf name _)) = do
     manager <- createManager validate
@@ -319,6 +349,7 @@ setExtAcl (RestConfAccessProfile host user pass validate) acl@(ExtendedAclConfBo
             then Right ()
             else Left res
 
+-- | Create all given extended access lists on target switch
 setExtAcls :: MonadIO f => RestConfAccessProfile -> [ExtendedAclConfBody] -> f (Either (Response ()) ())
 setExtAcls accessProfile acls = go acls
   where
@@ -329,6 +360,7 @@ setExtAcls accessProfile acls = go acls
             Right () -> go rest
             err      -> pure err
 
+-- | Delete extended access list entry for given interface
 deleteExtAcl :: MonadIO m => RestConfAccessProfile -> InterfaceId -> m (Either (Response ()) ())
 deleteExtAcl (RestConfAccessProfile host user pass validate) ifId = do
     manager <- createManager validate
@@ -346,6 +378,7 @@ deleteExtAcl (RestConfAccessProfile host user pass validate) ifId = do
               | s == notFound404    -> Right ()  -- Ignore if the ACL was not defined.
               | otherwise           -> Left res
 
+-- | Delete all extended access list entries for given interface list
 deleteExtAcls :: MonadIO f => RestConfAccessProfile -> [InterfaceId] -> f (Either (Response ()) ())
 deleteExtAcls accessProfile ifIds = go ifIds
   where
@@ -356,6 +389,7 @@ deleteExtAcls accessProfile ifIds = go ifIds
             Right () -> go rest
             err      -> pure err
 
+-- | Delete entire access list configuration from the target switch
 deleteAllAcls :: MonadIO m => RestConfAccessProfile -> m (Either (Response ()) ())
 deleteAllAcls (RestConfAccessProfile host user pass validate) = do
     manager <- createManager validate
@@ -375,6 +409,7 @@ deleteAllAcls (RestConfAccessProfile host user pass validate) = do
 {-
     NetFlow monitor operations
 -}
+-- | Obtain current cache of Flexible NetFlow monitor
 getFlowMonitorCache :: MonadIO m => RestConfAccessProfile -> m (Either (Response Monitor) Monitor)
 getFlowMonitorCache (RestConfAccessProfile host user pass validate) = do
     manager <- createManager validate

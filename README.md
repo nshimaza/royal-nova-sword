@@ -1,4 +1,4 @@
-# royal-nova-sword
+# Royal Nova Sword
 
 Royal Nova Sword - Automate allow listing for industrial network.
 
@@ -101,7 +101,11 @@ Start web GUI.
 
 ```shell-session
 $ .stack-work/dist/x86_64-osx/Cabal-3.0.1.0/build/rns-web/rns-web SWITCH-ADDRESS USERNAME PASSWORD
+
 ```
+
+Open the web GUI at [http://localhost:8081](http://localhost:8081/) from your
+browser.
 
 Press "Learn" button to start learning flow.  Press "Lock" to lock down the
 switch.  Press "Unlock" to remove all access control list from the switch.

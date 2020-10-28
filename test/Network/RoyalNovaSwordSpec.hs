@@ -3,9 +3,6 @@
 
 module Network.RoyalNovaSwordSpec where
 
-import           Data.Aeson
-import           Data.Attoparsec.ByteString
-
 import           Test.Hspec
 
 import           Network.RoyalNovaSword
@@ -14,12 +11,12 @@ import           Network.RoyalNovaSword.Types
 spec :: Spec
 spec = do
     let flow1 = Flow { flowSourceAddress      = "192.168.1.1"
-                     , flowDestinationAddress = "10.71.46.44"
+                     , flowDestinationAddress = "10.1.1.1"
                      , flowInterfaceInput     = TwoLetterIfId $ InterfaceId GigabitEthernet "2/1"
                      }
         flowJson1 = "{\
                     \  \"source-address\": \"192.168.1.1\",\
-                    \  \"destination-address\": \"10.71.46.44\",\
+                    \  \"destination-address\": \"10.1.1.1\",\
                     \  \"interface-input\": \"Gi2/1\",\
                     \  \"is-multicast\": \"\",\
                     \  \"vrf-id-input\": \"0\",\
@@ -34,7 +31,7 @@ spec = do
         aceRuleFlow1 = AceRule { aceRuleAction   = Permit
                                , aceRuleProtocol = Ip
                                , aceRuleHost     = Just "192.168.1.1"
-                               , aceRuleDstHost  = Just "10.71.46.44"
+                               , aceRuleDstHost  = Just "10.1.1.1"
                                , aceRuleAny      = Nothing
                                , aceRuleDstAny   = Nothing
                                }
@@ -98,12 +95,12 @@ spec = do
                                  , aclSeqRuleAceRule = aceRuleFlow3
                                  }
         flow4 = Flow { flowSourceAddress      = "192.168.1.2"
-                     , flowDestinationAddress = "10.71.46.44"
+                     , flowDestinationAddress = "10.1.1.1"
                      , flowInterfaceInput     = TwoLetterIfId $ InterfaceId GigabitEthernet "2/2"
                      }
         flowJson4 = "{\
                     \  \"source-address\": \"192.168.1.2\",\
-                    \  \"destination-address\": \"10.71.46.44\",\
+                    \  \"destination-address\": \"10.1.1.1\",\
                     \  \"interface-input\": \"Gi2/2\",\
                     \  \"is-multicast\": \"\",\
                     \  \"vrf-id-input\": \"0\",\
@@ -118,7 +115,7 @@ spec = do
         aceRuleFlow4 = AceRule { aceRuleAction   = Permit
                                , aceRuleProtocol = Ip
                                , aceRuleHost     = Just "192.168.1.2"
-                               , aceRuleDstHost  = Just "10.71.46.44"
+                               , aceRuleDstHost  = Just "10.1.1.1"
                                , aceRuleAny      = Nothing
                                , aceRuleDstAny   = Nothing
                                }

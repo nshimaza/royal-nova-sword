@@ -1,6 +1,6 @@
 name:                royal-nova-sword
 version:             0.1.0.0
-github:              "githubuser/royal-nova-sword"
+github:              "nshimaza/royal-nova-sword"
 license:             OtherLicense
 author:              "Naoto Shimazaki"
 maintainer:          "nshimaza@cisco.com"
@@ -12,12 +12,12 @@ extra-source-files:
 
 # Metadata used when publishing your package
 # synopsis:            Short description of your package
-# category:            Web
+# category:            Network
 
 # To avoid duplicated efforts in documentation and dealing with the
 # complications of embedding Haddock markup inside cabal files, it is
 # common to point users to the README.md file.
-description:         Please see the README on GitHub at <https://github.com/githubuser/royal-nova-sword#readme>
+description:         Please see the README on GitHub at <https://github.com/nshimaza/royal-nova-sword#readme>
 
 dependencies:
 - base >= 4.7 && < 5

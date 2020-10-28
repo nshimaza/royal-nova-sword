@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: d97119aa2e64a35e79cc2711e0b72e2d64840ea24a049c2f3216b7f4f2e71d5b
+-- hash: 2533fe306d74fc7001a2add0ad0448a9eb0b917bcd094d477adb101ae5203a87
 
 name:           royal-nova-sword
 version:        0.1.0.0
@@ -42,13 +42,10 @@ library
     , connection
     , http-client
     , http-conduit
-    , http-media
     , http-types
     , optparse-applicative
-    , servant-server
     , text
     , unordered-containers
-    , vector
   default-language: Haskell2010
 
 executable rns-learn
@@ -64,13 +61,9 @@ executable rns-learn
     , base >=4.7 && <5
     , bytestring
     , http-conduit
-    , http-media
     , optparse-applicative
     , royal-nova-sword
-    , servant-server
     , text
-    , unordered-containers
-    , vector
   default-language: Haskell2010
 
 executable rns-lock
@@ -86,13 +79,9 @@ executable rns-lock
     , base >=4.7 && <5
     , bytestring
     , http-conduit
-    , http-media
     , optparse-applicative
     , royal-nova-sword
-    , servant-server
     , text
-    , unordered-containers
-    , vector
   default-language: Haskell2010
 
 executable rns-reset
@@ -108,13 +97,9 @@ executable rns-reset
     , base >=4.7 && <5
     , bytestring
     , http-conduit
-    , http-media
     , optparse-applicative
     , royal-nova-sword
-    , servant-server
     , text
-    , unordered-containers
-    , vector
   default-language: Haskell2010
 
 executable rns-web
@@ -135,8 +120,6 @@ executable rns-web
     , royal-nova-sword
     , servant-server
     , text
-    , unordered-containers
-    , vector
     , wai
     , warp
   default-language: Haskell2010
@@ -160,11 +143,7 @@ test-suite royal-nova-sword-test
     , bytestring
     , hspec
     , http-conduit
-    , http-media
     , optparse-applicative
     , royal-nova-sword
-    , servant-server
     , text
-    , unordered-containers
-    , vector
   default-language: Haskell2010

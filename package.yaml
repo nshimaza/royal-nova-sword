@@ -25,12 +25,8 @@ dependencies:
 - attoparsec
 - bytestring
 - http-conduit
-- http-media
 - optparse-applicative
-- servant-server
 - text
-- unordered-containers
-- vector
 
 library:
   source-dirs: src
@@ -39,6 +35,7 @@ library:
   - connection
   - http-client
   - http-types
+  - unordered-containers
 
 executables:
   rns-web:
@@ -50,6 +47,8 @@ executables:
     - -with-rtsopts=-N
     dependencies:
     - royal-nova-sword
+    - http-media
+    - servant-server
     - wai
     - warp
 

@@ -5,6 +5,7 @@ Royal Nova Sword - Automate allow listing for industrial network.
 This repo contains prototype implementation of automated allow listing for
 entire industrial network.
 
+
 ## Background
 
 Today, many of vendor proprietary protocols and custom protocols are used in
@@ -39,7 +40,7 @@ build backend.  You need [Elm](https://elm-lang.org/) to build frontend.
 
 Pre-compiled frontend code is already contained in this repo as
 `/static/index.html`.  If you want to modify frontend source code, modify
-`frontend/src/Main.elm`, compile it by Elm compiler, then copy generated
+`/frontend/src/Main.elm`, compile it by Elm compiler, then copy generated
 `index.html` under `/static`.
 
 
@@ -69,7 +70,7 @@ your self but in case you want to build it, follow this instruction.
 Below is typical log.
 
 ```shell-session
-frontend$ elm make src/Main.elm
+$ elm make src/Main.elm
 Starting downloads...
 
   ● elm/json 1.1.3
@@ -89,7 +90,7 @@ Success! Compiled 1 module.
 
     Main ───> index.html
 
-frontend$
+$
 ```
 
 ## Usage
@@ -137,5 +138,14 @@ access control lists and NetFlow configurations from the switch.
 
 ### Important Note
 
-This prototype only learns and locks traffic flows on `GigabitEthernet2/1`
-through `GigabitEthernet2/4`.  Any traffic flows on other port is not impacted.
+This prototype only learns and locks traffic flows on interface range from
+`GigabitEthernet2/1` thru `GigabitEthernet2/4`.  Any traffic flows on other port
+is not impacted.
+
+## Detailed internal API document
+
+Modules implemented under `/src` has Haddock annotation.  You can generate detailed API documentation for the modules by executing Haddock with following command.
+
+```shell-session
+$ stack haddock
+```

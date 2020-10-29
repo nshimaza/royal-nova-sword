@@ -2,7 +2,78 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE Strict            #-}
 
-module Network.RoyalNovaSword where
+{-
+    Copyright (c) 2020 Cisco and/or its affiliates.
+
+    This software is licensed to you under the terms of the Cisco Sample
+    Code License, Version 1.1 (the "License"). You may obtain a copy of the
+    License at
+
+                https://developer.cisco.com/docs/licenses
+
+    All use of the material herein must be in accordance with the terms of
+    the License. All rights not expressly granted by the License are
+    reserved. Unless required by applicable law or agreed to separately in
+    writing, software distributed under the License is distributed on an "AS
+    IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+    or implied.
+-}
+
+{-|
+Module      : Network.RoyalNovaSword
+Copyright   : (c) Cisco and/or its affiliates
+License     : Cisco Sample Code License (see the file LICENSE)
+Maintainer  : https://github.com/nshimaza
+Stability   : experimental
+
+Creating Flexible NetFlow monitor on switch, obtain learned flows, applying
+access control allowing only flows presented during learning period.
+-}
+module Network.RoyalNovaSword
+    (
+    -- * Types
+      RestConfAccessProfile(..)
+    -- * Flow to ACL converting functions
+    , flowToAceRule
+    , flowsForOneIfToAclSeqRules
+    , appendDenyAll
+    , makeExtAcl
+    , makeExtAcls
+    -- * HTTP client configuration
+    , createManager
+    -- * RESTCONF constants
+    , restConfCommonPath
+    , restConfNativeConfPath
+    , restConfNetFlowConfPath
+    , restConfInterfaceConfPath
+    , restConfInterfaceFlowConfPath
+    , restConfInterfaceAclInConfPath
+    , restConfExtAclConfPath
+    , restConfAllAclConfPath
+    , restConfFlowMonitorOprPath
+    , addRestConfJsonHeaders
+    -- * RESTCONF operations
+    -- ** Flexible NetFlow operations
+    , deleteNetFlowConf
+    , netFlowRestConfBody
+    , setNetFlowConf
+    , deleteNetFlowMonOnInterface
+    , deleteNetFlowMonOnInterfaces
+    , netFlowInterfaceRestConfBody
+    , setNetFlowMonOnInterface
+    , setNetFlowMonOnInterfaces
+    -- ** Access Control List operations
+    , setAclInOnInterface
+    , setAclInOnInterfaces
+    , deleteAclInOnInterface
+    , deleteAclInOnInterfaces
+    , setExtAcl
+    , setExtAcls
+    , deleteExtAcl
+    , deleteExtAcls
+    , deleteAllAcls
+    , getFlowMonitorCache
+    ) where
 
 import           Control.Monad.IO.Class       (MonadIO (..))
 import           Data.Aeson                   (encode)
@@ -45,7 +116,7 @@ data RestConfAccessProfile = RestConfAccessProfile
 {-
     Flow to ACL converter
 -}
--- Convert single flow entry to ace-rule entry of access control list
+-- | Convert single flow entry to ace-rule entry of access control list
 flowToAceRule :: Flow -> AceRule
 flowToAceRule (Flow src dst _) = AceRule Permit Ip (Just src) (Just dst) Nothing Nothing
 
@@ -146,7 +217,7 @@ deleteNetFlowConf (RestConfAccessProfile host user pass validate) = do
             then Right ()
             else Left res
 
--- RESTCONF body JSON to create Flexible NetFlow record and monitor configuration
+-- | RESTCONF body JSON to create Flexible NetFlow record and monitor configuration
 netFlowRestConfBody :: L.ByteString
 netFlowRestConfBody =
     "{\
@@ -225,7 +296,7 @@ deleteNetFlowMonOnInterfaces accessProfile ifIds = go ifIds
             Right () -> go rest
             err      -> pure err
 
--- RESTCONF body JSON to apply Flexible NetFlow monitor to an interface
+-- | RESTCONF body JSON to apply Flexible NetFlow monitor to an interface
 netFlowInterfaceRestConfBody :: L.ByteString
 netFlowInterfaceRestConfBody =
     "{\

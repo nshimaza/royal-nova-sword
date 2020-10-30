@@ -285,7 +285,7 @@ unlockButton state =
         ( attr, onP ) =
             case state of
                 Unlocked ->
-                    ( disabledButtonAttr, Nothing )
+                    ( enabledButtonAttr, Just UnlockPressed )
 
                 Starting ->
                     ( disabledButtonAttr, Nothing )

@@ -12421,7 +12421,9 @@ var $author$project$Main$unlockButton = function (state) {
 	var _v0 = function () {
 		switch (state.$) {
 			case 'Unlocked':
-				return _Utils_Tuple2($author$project$Main$disabledButtonAttr, $elm$core$Maybe$Nothing);
+				return _Utils_Tuple2(
+					$author$project$Main$enabledButtonAttr,
+					$elm$core$Maybe$Just($author$project$Main$UnlockPressed));
 			case 'Starting':
 				return _Utils_Tuple2($author$project$Main$disabledButtonAttr, $elm$core$Maybe$Nothing);
 			case 'Learning':
